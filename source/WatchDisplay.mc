@@ -1,5 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Attention;
+using Toybox.Lang;
 
 class WatchDisplay
 {
@@ -37,7 +38,7 @@ class WatchDisplay
 	   		}
    		}
    
-    	var color;
+    	var color = Graphics.COLOR_TRANSPARENT;
     
     	switch (varioColor)
     	{
@@ -116,8 +117,8 @@ class WatchDisplay
         var yOffset = dc.getHeight() / 2;
         var xOffset = dc.getWidth () / 2;
         
-        var dimAlt  = dc.getTextDimensions (alt,  Graphics.FONT_NUMBER_HOT);
-        var dimUnit = dc.getTextDimensions (unit, Graphics.FONT_XTINY);
+        var dimAlt  = dc.getTextDimensions (alt,  Graphics.FONT_NUMBER_HOT) as [ Lang.Number, Lang.Number ];
+        var dimUnit = dc.getTextDimensions (unit, Graphics.FONT_XTINY) as [ Lang.Number, Lang.Number ];
         
         xOffset -= (dimAlt[0] + (recording ? 1.5: 1) * dimUnit[0]) / 2;
         
@@ -151,8 +152,8 @@ class WatchDisplay
         var yOffset = dc.getHeight() / 4;
         var xOffset = dc.getWidth () / 2;
         
-        var dimSpeed  = dc.getTextDimensions (speed, Graphics.FONT_NUMBER_MILD);
-        var dimUnit = dc.getTextDimensions (unit, Graphics.FONT_XTINY);
+        var dimSpeed  = dc.getTextDimensions (speed, Graphics.FONT_NUMBER_MILD) as [ Lang.Number, Lang.Number ];
+        var dimUnit = dc.getTextDimensions (unit, Graphics.FONT_XTINY) as [ Lang.Number, Lang.Number ];
         
         xOffset -= (dimSpeed[0] + dimUnit[0]) / 2;
         dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
@@ -197,7 +198,7 @@ class WatchDisplay
         var yOffset = 3 * dc.getHeight() / 4;
         var xOffset = dc.getWidth () / 2;
 
-		var color;
+		var color = Graphics.COLOR_TRANSPARENT;
 		
 		switch (varioColor)
     	{
@@ -208,8 +209,8 @@ class WatchDisplay
 
        	var text = vario < 0 ? vario.format("%.1f"): "+" + vario.format ("%.1f");
         
-        var dimVario = dc.getTextDimensions (text, Graphics.FONT_NUMBER_MILD);
-        var dimUnit  = dc.getTextDimensions (unit, Graphics.FONT_XTINY);
+        var dimVario = dc.getTextDimensions (text, Graphics.FONT_NUMBER_MILD) as [ Lang.Number, Lang.Number ];
+        var dimUnit  = dc.getTextDimensions (unit, Graphics.FONT_XTINY) as [ Lang.Number, Lang.Number ];
         
         if (color != Graphics.COLOR_TRANSPARENT)
         {	

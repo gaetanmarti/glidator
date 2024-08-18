@@ -1,6 +1,7 @@
 using Toybox.Application;
 using Toybox.Sensor;
 
+using Toybox.Activity;
 using Toybox.ActivityRecording;
 using Toybox.Attention;
 
@@ -61,7 +62,7 @@ function startRecording ()
 	{
 	    $.session = ActivityRecording.createSession({
 	    	:name=>"Glide",
-	    	:sport=>ActivityRecording.SPORT_HANG_GLIDING});
+	    	:sport=>Activity.SPORT_FLYING});
 	    $.session.start();
 	    
 	    if (Attention has :playTone)
@@ -117,14 +118,14 @@ class FlyInstrumentApp extends Application.AppBase
         Sensor.unregisterSensorDataListener ();
     }
     
-    function onPosition (info)
+    function onPosition (info as $.Toybox.Position.Info) as Void
     {
         // Do nothing to avoid both call of onPosition and onSensor called in the same cycle
         // mainView.updateData ();   
     }
-    
+   
     // Should be called every 1Hz
-    function onSensor (info)
+    function onSensor (info as $.Toybox.Sensor.Info) as Void
     {
         mainView.updateData ();
     }

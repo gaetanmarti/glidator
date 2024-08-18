@@ -39,6 +39,11 @@ class FlyInstrumentView extends WatchUi.View
     	{
     		return;
     	}
+
+		// See note: https://developer.garmin.com/connect-iq/api-docs/Toybox/Graphics/Dc.html
+		// "You should never directly instantiate a Dc object, or attempt to render to the screen outside of an onUpdate call."
+		// It seems that on the new OS version, the Dc object is now passed as a parameter to the onUpdate method.
+		display.dc = dc; // !!!
     
 		var vario  = data.getVario ();
 		var record = Toybox has :ActivityRecording && $.session != null && $.session.isRecording();

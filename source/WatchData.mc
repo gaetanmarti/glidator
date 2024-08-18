@@ -46,7 +46,9 @@ class WatchData
     }
 
 	// Availability of data from the GPS
-	// https://developer.garmin.com/downloads/connect-iq/monkey-c/doc/Toybox/Position/Info.html
+	// https://developer.garmin.com/connect-iq/api-docs/Toybox/Position/Info.html
+	(:typecheck(false))
+	// See https://forums.garmin.com/developer/connect-iq/i/bug-reports/the-type-checker-warns-about-info-field-even-after-checking-field-is-present
 	function updateInfo (info)
 	{
 		var data = {};
@@ -96,7 +98,7 @@ class WatchData
         
         // The GPS time stamp of the obtained Location fix.
         // Class: Toybox::Time::Moment
-        // https://developer.garmin.com/downloads/connect-iq/monkey-c/doc/Toybox/Time/Moment.html
+        // https://developer.garmin.com/connect-iq/api-docs/Toybox/Time/Moment.html
         if (info has :when)
         {
         	data ["when"] = info.when;
@@ -105,7 +107,7 @@ class WatchData
         gpsData = data;
     }
     
-	// https://developer.garmin.com/downloads/connect-iq/monkey-c/doc/Toybox/Activity/Info.html
+	// https://developer.garmin.com/connect-iq/api-docs/Toybox/Activity/Info.html
 	function updateActivityInfo (info)
 	{
 		var data = {};
@@ -136,6 +138,8 @@ class WatchData
     
     
     // https://developer.garmin.com/connect-iq/api-docs/Toybox/Sensor/Info.html
+	(:typecheck(false))
+	// See https://forums.garmin.com/developer/connect-iq/i/bug-reports/the-type-checker-warns-about-info-field-even-after-checking-field-is-present
     function updateSensorInfo (info)
 	{
 		var data = {};
@@ -171,9 +175,9 @@ class WatchData
         
     	sensorData = data;
     }
-    
-    
-    
+      
+    (:typecheck(false))
+	// See https://forums.garmin.com/developer/connect-iq/i/bug-reports/the-type-checker-warns-about-info-field-even-after-checking-field-is-present
     function getAltitude ()
     {
     	if (activityData != null && activityData.hasKey("altitude"))
@@ -195,7 +199,8 @@ class WatchData
     	return null;
     }
     
-    
+    (:typecheck(false))
+	// See https://forums.garmin.com/developer/connect-iq/i/bug-reports/the-type-checker-warns-about-info-field-even-after-checking-field-is-present
     function getSpeed ()
     {
     	if (sensorData != null && sensorData.hasKey("speed"))
@@ -211,6 +216,8 @@ class WatchData
     	return null;
     }
     
+	(:typecheck(false))
+	// See https://forums.garmin.com/developer/connect-iq/i/bug-reports/the-type-checker-warns-about-info-field-even-after-checking-field-is-present
     function getHeartRate ()
     {
     	if (activityData != null && activityData.hasKey("heartRate"))
@@ -225,7 +232,9 @@ class WatchData
     	    	
     	return null;
     }
-    
+
+    (:typecheck(false))
+	// See https://forums.garmin.com/developer/connect-iq/i/bug-reports/the-type-checker-warns-about-info-field-even-after-checking-field-is-present
     function getHeading ()
     {
     	/*
