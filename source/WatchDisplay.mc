@@ -1,4 +1,5 @@
 using Toybox.WatchUi;
+using Toybox.Attention;
 
 class WatchDisplay
 {
@@ -118,7 +119,7 @@ class WatchDisplay
         var dimAlt  = dc.getTextDimensions (alt,  Graphics.FONT_NUMBER_HOT);
         var dimUnit = dc.getTextDimensions (unit, Graphics.FONT_XTINY);
         
-        xOffset -= (dimAlt[0] + dimUnit[0]) / 2;
+        xOffset -= (dimAlt[0] + (recording ? 1.5: 1) * dimUnit[0]) / 2;
         
         if (recording)
         {
@@ -131,7 +132,7 @@ class WatchDisplay
         	
         	dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
         	dc.drawCircle(xOffset, yOffset, dimUnit [0] / 2);
-        	xOffset += dimUnit[0] / 2;
+        	xOffset += 2 * dimUnit[0] / 3;
         }
         
         
@@ -162,6 +163,29 @@ class WatchDisplay
         dc.drawText (xOffset, yOffset, Graphics.FONT_XTINY, unit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
    	}
    	
+   	function beep (vSpeedMS)
+   	{
+   		if (Attention has :playTone && $.preferences.getBeep ())
+   		{
+   			var freq = 600 + 75 * (vSpeedMS - climbingThreshold);
+            freq = (freq < 600 ? 600: (freq > 2200 ? 2200: freq)); // clamp
+   		
+   			// http://blueflyvario.blogspot.com/2013/07/hardware-settings.html beep cadence
+            // https://www.rpmsport.net/wordpress/wp-content/uploads/2015/01/Flymaster-VARIO-SD-manual-EN-v2.pdf  4.5.2
+            // See also the matlab script beepDuration.m
+            var dur = (vSpeedMS <= 0.0f ? 0.0f:  50.0f / ((vSpeedMS / 12.0f) + 0.1f));            
+            dur = (dur < 75 ? 75: dur);	
+            
+            var toneProfile =
+		    [
+		        new Attention.ToneProfile( freq, dur )
+		    ];
+            
+            Attention.playTone({:toneProfile=>toneProfile});	
+		}
+   	}
+   	
+   	
    	// https://www.w3schools.com/colors/colors_picker.asp
    	const COLOR_LT_RED = 0xff8080; // 0xffb3b3;
    	const COLOR_LT_GREEN = 0x33ff77; // 0xb3ffcc; // BUG in compiler when specifying HEX format without number!
@@ -179,7 +203,7 @@ class WatchDisplay
     	{
 	    	case VarioSink:     color = COLOR_LT_RED; break;
 	    	case VarioZeroing:  color = Graphics.COLOR_TRANSPARENT; break;
-	    	case VarioClimb:    color = COLOR_LT_GREEN; break;
+	    	case VarioClimb:    color = COLOR_LT_GREEN; beep (vario); break;
     	}
 
        	var text = vario < 0 ? vario.format("%.1f"): "+" + vario.format ("%.1f");

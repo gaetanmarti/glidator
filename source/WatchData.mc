@@ -88,6 +88,7 @@ class WatchData
         }
         
         // The true north referenced heading in radians.
+        // This provides the direction of travel when moving. If supported by the device, it provides compass orientation when stopped.
         if (info has :heading)
         {
         	data ["heading"] = info.heading;
@@ -122,10 +123,13 @@ class WatchData
         }
         
         // The true north referenced heading in radians.
+        // WARNING: only provides compass information
+        /*
 		if (info has :currentHeading)
         {
         	data ["heading"] = info.currentHeading;
         }
+    	*/
     
     	activityData = data;
     }
@@ -145,10 +149,13 @@ class WatchData
         }
         
         // The true north referenced heading in radians.
+        // WARNING: only provides compass information
+        /*
         if (info has :heading)
         {
         	data ["heading"] = info.heading;
         }
+        */
         
        	// The heart rate in beats per minute (bpm).
 		if (info has :heartRate)
@@ -221,16 +228,18 @@ class WatchData
     
     function getHeading ()
     {
+    	/*
+    	// WARNING: only provides compass information
     	if (activityData != null && activityData.hasKey("heading"))
     	{
     		return activityData	["heading"];
     	}
-    
+    	// WARNING: only provides compass information
     	if (sensorData != null && sensorData.hasKey("heading"))
     	{
     		return sensorData ["heading"];
     	}
-
+		*/
     	if (gpsData != null && gpsData.hasKey("heading"))
     	{
     		return gpsData ["heading"];

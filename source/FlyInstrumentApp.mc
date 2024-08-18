@@ -78,7 +78,13 @@ function startRecording ()
         }
     }
 }
-           
+         
+// --------------------------------------------------------------------------------
+// Globals
+// --------------------------------------------------------------------------------
+                  
+var preferences;
+  
 // --------------------------------------------------------------------------------
 // Main app
 // --------------------------------------------------------------------------------
@@ -90,6 +96,8 @@ class FlyInstrumentApp extends Application.AppBase
     function initialize ()
     {
         AppBase.initialize ();
+        
+        preferences = new Preferences ();
     }
 
     // onStart() is called on application start up
