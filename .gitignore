@@ -1,3 +1,9 @@
+# Artifacts
+bin/
+
+# Mac specific
+/.DS_Store
+
 # Prerequisites
 *.d
 
