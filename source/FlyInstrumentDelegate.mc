@@ -39,7 +39,7 @@ class MyMenu2QuitDelegate extends WatchUi.Menu2InputDelegate
 
 // --------------------------------------------------------------------------------
 
-class MyMenu2PreferencesDelegate extends WatchUi.Menu2InputDelegate
+class OnToggleBeepDelegate extends WatchUi.Menu2InputDelegate
 {
 	var beepToggleMenu;
 
@@ -49,17 +49,29 @@ class MyMenu2PreferencesDelegate extends WatchUi.Menu2InputDelegate
         beepToggleMenu = beepTM;
     }
 
-    function onSelect(item)
-    {
-        if( item.getId().equals("audio") )
-        {
-            Sys.println( "On MyMenu2PreferencesDelegate:audio" );
-        }
-    }
-    
     function onBack()
     {
     	$.preferences.setBeep (beepToggleMenu.isEnabled());
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
+    }
+}
+
+// --------------------------------------------------------------------------------
+
+class OnToggleRecordDelegate extends WatchUi.Menu2InputDelegate
+{
+	var recordToggleMenu;
+
+    function initialize(recordTM)
+    {
+        Menu2InputDelegate.initialize();
+        recordToggleMenu = recordTM;
+    }
+    
+    // Note: do not save the recording is disabled from here
+    function onBack()
+    {
+    	$.preferences.setRecording (recordToggleMenu.isEnabled());
         WatchUi.popView(WatchUi.SLIDE_DOWN);
     }
 }
@@ -77,8 +89,7 @@ class BaseInputDelegate extends WatchUi.BehaviorDelegate
 
     function onSelect()
     {
-    	$.startRecording();
-    	WatchUi.requestUpdate();
+        $.preferences.nextScreen ();
         return true;
     }
     
@@ -107,12 +118,16 @@ class BaseInputDelegate extends WatchUi.BehaviorDelegate
 	        
 	        var beep = $.preferences.getBeep ();
 	        var beepTM = new WatchUi.ToggleMenuItem("Beep",  "Set audio on/off", "beep", beep, null);
-	        menu.addItem(beepTM);
-	      
-	        var delegate = new MyMenu2PreferencesDelegate(beepTM); // a WatchUi.Menu2InputDelegate
-	        
+	        menu.addItem(beepTM);	      
+	        var delegate = new OnToggleBeepDelegate(beepTM); // a WatchUi.Menu2InputDelegate
 	        WatchUi.pushView(menu, delegate, WatchUi.SLIDE_IMMEDIATE);
-    	
+ 
+            var record = $.preferences.getRecording ();
+	        var recordTM = new WatchUi.ToggleMenuItem("Record",  "Set recording on/off", "record", record, null);
+	        menu.addItem(recordTM);	      
+	        delegate = new OnToggleRecordDelegate(recordTM); // a WatchUi.Menu2InputDelegate
+	        WatchUi.pushView(menu, delegate, WatchUi.SLIDE_IMMEDIATE);
+   	
 	    return true;
     }
     

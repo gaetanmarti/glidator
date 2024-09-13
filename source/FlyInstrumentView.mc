@@ -32,18 +32,9 @@ class FlyInstrumentView extends WatchUi.View
     {
     }
     
-    // Update the view
-    function onUpdate (dc) 
-    {
-    	if (display == null)
-    	{
-    		return;
-    	}
-
-		var vario  = data.getVario ();
-		var record = Toybox has :ActivityRecording && $.session != null && $.session.isRecording();
-	
-       	display.start (dc, vario == null ? 0.0: vario);
+	function displayDefaultScreen (dc, vario, record)
+	{
+		display.start (dc, vario == null ? 0.0: vario);
        	
 	        var heading = data.getHeading ();
 			if (heading != null)
@@ -73,23 +64,35 @@ class FlyInstrumentView extends WatchUi.View
 			}
 				
 		display.end (dc);
-		
-		
-		// DEBUG
-		/*
-		var heartRate = data.getHeartRate ();
-		if (heartRate)
-		{
-			dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
-			dc.drawText (dc.getWidth () / 2, (3.5 * dc.getHeight()) / 4, Graphics.FONT_XTINY, heartRate.toString (), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+	}
+
+	function displayThermalScreen (dc, vario, record)
+	{
+		System.println("TODO: Implement thermal screen");
+	}
+
+    // Update the view
+    function onUpdate (dc) 
+    {
+    	if (display == null)
+    	{
+    		return;
+    	}
+
+		var vario  = data.getVario ();
+		var record = Toybox has :ActivityRecording && $.session != null && $.session.isRecording();
+	
+       	switch (preferences.getCurrentScreen ())
+	   	{
+			default:
+				System.println("Unknown screen!");
+			case Preferences.DefaultScreen:
+				displayDefaultScreen (dc, vario, record);
+				break;
+			case Preferences.ThermalScreen:
+				displayThermalScreen (dc, vario, record);
+				break;
 		}
-		if (Toybox has :ActivityRecording && $.session != null && $.session.isRecording())
-		{
-			dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
-			dc.drawText (dc.getWidth () / 2, (3.5 * dc.getHeight()) / 4, Graphics.FONT_XTINY, "recording", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-		}
-		
-		*/
     }
     
     function updateData ()

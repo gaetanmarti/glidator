@@ -7,9 +7,6 @@ class WatchData
 	var sensorData = null;
 
 	var oldAlt = null;
-	
-	//var vario = [];
-	//const varioMaxSize = 7;
 	var vario = null;
 
 	function startMeasure ()
@@ -27,13 +24,6 @@ class WatchData
 		{
 			if (oldAlt != null)
 			{
-				/*
-				vario.add (alt - oldAlt);
-				if (vario.size () > varioMaxSize)
-				{
-					vario = vario.slice (1, null);
-				}
-				*/
 				vario = alt - oldAlt;
 			}
 			oldAlt = alt;
@@ -124,15 +114,6 @@ class WatchData
         	data ["heartRate"] = info.currentHeartRate;
         }
         
-        // The true north referenced heading in radians.
-        // WARNING: only provides compass information
-        /*
-		if (info has :currentHeading)
-        {
-        	data ["heading"] = info.currentHeading;
-        }
-    	*/
-    
     	activityData = data;
     }
     
@@ -151,15 +132,6 @@ class WatchData
         {
         	data ["altitude"] = info.altitude;
         }
-        
-        // The true north referenced heading in radians.
-        // WARNING: only provides compass information
-        /*
-        if (info has :heading)
-        {
-        	data ["heading"] = info.heading;
-        }
-        */
         
        	// The heart rate in beats per minute (bpm).
 		if (info has :heartRate)
@@ -237,18 +209,6 @@ class WatchData
 	// See https://forums.garmin.com/developer/connect-iq/i/bug-reports/the-type-checker-warns-about-info-field-even-after-checking-field-is-present
     function getHeading ()
     {
-    	/*
-    	// WARNING: only provides compass information
-    	if (activityData != null && activityData.hasKey("heading"))
-    	{
-    		return activityData	["heading"];
-    	}
-    	// WARNING: only provides compass information
-    	if (sensorData != null && sensorData.hasKey("heading"))
-    	{
-    		return sensorData ["heading"];
-    	}
-		*/
     	if (gpsData != null && gpsData.hasKey("heading"))
     	{
     		return gpsData ["heading"];
