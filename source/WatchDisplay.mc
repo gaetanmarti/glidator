@@ -4,23 +4,22 @@ using Toybox.Lang;
 
 class WatchDisplay
 {
-	var borderSize;
-	var dc;
+	var borderSize; // width of the heading ring component
 
 	// Retrieve these data from Store (https://developer.garmin.com/connect-iq/api-docs/Toybox/Application/Storage.html#getValue-instance_method)
     var climbingThreshold =  0.3;
     var sinkingThreshold  = -2.0;
 	
-    function initialize (deviceContext)
+    function initialize (dc)
     {
-    	dc = deviceContext;
         borderSize = dc.getWidth () / 12;
     }
     
     enum {VarioSink, VarioZeroing, VarioClimb}
-    var varioColor = VarioZeroing;  
+    var varioColor = VarioZeroing; // Color of the vario display
     
-    function start (vario)
+	// Set the default color according to the vario value and clear the display
+    function start (dc, vario)
     {
     	if (vario <= sinkingThreshold)
     	{
@@ -52,34 +51,34 @@ class WatchDisplay
         dc.clear();
     }
     
-    function end ()
+    function end (dc)
     {
-    	dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
-	    dc.drawCircle (dc.getWidth ()/2, dc.getHeight ()/2, dc.getWidth ()/2-borderSize);
+    	// NOP
     }
     
-    function waitForAltitude ()
+	// Display a message while waiting for the altitude
+    function waitForAltitude (dc)
     {
     	dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
    		dc.drawText (dc.getWidth () / 2, dc.getHeight() / 2, Graphics.FONT_LARGE, "starting ...", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
     
-    
     // Heading in radians
-    function heading (heading)
+    function heading (dc, heading)
     {
-    	//heading = Math.toRadians(180+45);
-    
     	var w = dc.getWidth ();
     	var h = dc.getHeight ();
     	var offset  = 0.5;
     	
+		// Points composing the heading triangle
     	var points  = [[-borderSize/2,-h/2+borderSize+offset],[0,-h/2],[borderSize/2,-h/2+borderSize+offset]];
     		
     	var pts = points.size ();
     	var cos = Math.cos(heading);
     	var sin = Math.sin(heading);
     		
+		// Rotate the heading triangle
+
     	for (var i = 0; i < pts; i++)
     	{
     		var x0 = -points[i][0];
@@ -92,12 +91,15 @@ class WatchDisplay
     		points[i][1] =  h / 2 - y1;
     	}
     	
+		// Display the inner white circle (containing speed, altitude, vario)
 		dc.setColor( Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT );
     	dc.fillCircle (w/2, h/2, w/2-borderSize);
-    	
-    	dc.setColor( /*Graphics.COLOR_BLUE*/ Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
+
+    	// Display the heading triangle
+    	dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
     	dc.fillPolygon (points);
     	
+		// Display the heading triangle border
     	dc.setPenWidth(2);
 	    	dc.setColor( Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT );
 	    	for (var i = 0; i + 1 < pts; i++) // Do not display last line. Was: for (var i = 0; i < pts; i++) 
@@ -110,7 +112,7 @@ class WatchDisplay
     	
     var blink = false;
     	
-   	function altitude (alt, recording)
+   	function altitude (dc, alt, recording)
    	{
    		var unit = " m";
    	
@@ -122,6 +124,7 @@ class WatchDisplay
         
         xOffset -= (dimAlt[0] + (recording ? 1.5: 1) * dimUnit[0]) / 2;
         
+		// Display the recording indicator (red blinking circle)
         if (recording)
         {
         	if (blink)
@@ -136,16 +139,17 @@ class WatchDisplay
         	xOffset += 2 * dimUnit[0] / 3;
         }
         
-        
+        // Display the altitude
         dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
         dc.drawText (xOffset, yOffset, Graphics.FONT_NUMBER_HOT, alt, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         
+		// Display the unit of altitude
         xOffset += dimAlt[0];
         dc.setColor( Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT );
     	dc.drawText(xOffset, yOffset, Graphics.FONT_XTINY, unit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
    	}
    	
-   	function speed (speed)
+   	function speed (dc, speed)
    	{
    		var unit = " km/h";
    	
@@ -155,16 +159,18 @@ class WatchDisplay
         var dimSpeed  = dc.getTextDimensions (speed, Graphics.FONT_NUMBER_MILD) as [ Lang.Number, Lang.Number ];
         var dimUnit = dc.getTextDimensions (unit, Graphics.FONT_XTINY) as [ Lang.Number, Lang.Number ];
         
+		// Display the speed
         xOffset -= (dimSpeed[0] + dimUnit[0]) / 2;
         dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
         dc.drawText (xOffset, yOffset, Graphics.FONT_NUMBER_MILD, speed, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         
+		// Display the unit of speed
         xOffset += dimSpeed[0];
         dc.setColor( Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT );
         dc.drawText (xOffset, yOffset, Graphics.FONT_XTINY, unit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
    	}
    	
-   	function beep (vSpeedMS)
+   	function beep (dc, vSpeedMS)
    	{
    		if (Attention has :playTone && $.preferences.getBeep ())
    		{
@@ -191,7 +197,7 @@ class WatchDisplay
    	const COLOR_LT_RED = 0xff8080; // 0xffb3b3;
    	const COLOR_LT_GREEN = 0x33ff77; // 0xb3ffcc; // BUG in compiler when specifying HEX format without number!
    	
-   	function vario (vario)
+   	function vario (dc, vario)
    	{
    		var unit = " m/s";
    	
@@ -204,7 +210,7 @@ class WatchDisplay
     	{
 	    	case VarioSink:     color = COLOR_LT_RED; break;
 	    	case VarioZeroing:  color = Graphics.COLOR_TRANSPARENT; break;
-	    	case VarioClimb:    color = COLOR_LT_GREEN; beep (vario); break;
+	    	case VarioClimb:    color = COLOR_LT_GREEN; beep (dc, vario); break;
     	}
 
        	var text = vario < 0 ? vario.format("%.1f"): "+" + vario.format ("%.1f");
@@ -212,75 +218,24 @@ class WatchDisplay
         var dimVario = dc.getTextDimensions (text, Graphics.FONT_NUMBER_MILD) as [ Lang.Number, Lang.Number ];
         var dimUnit  = dc.getTextDimensions (unit, Graphics.FONT_XTINY) as [ Lang.Number, Lang.Number ];
         
+		// Display the vario background color in the lower half of the screen
         if (color != Graphics.COLOR_TRANSPARENT)
         {	
 	        dc.setColor( color, Graphics.COLOR_TRANSPARENT );
-	        var y0 = 3 * dc.getHeight() / 4 - dimVario[1];
+	        var y0 = yOffset - dimVario[1];
 	        dc.setClip(0, y0, dc.getWidth (), dc.getHeight());
 	        	dc.fillCircle(dc.getWidth () / 2, dc.getHeight() / 2, dc.getWidth () / 2 - borderSize);
 	        dc.clearClip();
 	    }
         
+		// Display the vario
        	xOffset -= (dimVario[0] + dimUnit[0]) / 2;
         dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
         dc.drawText (xOffset, yOffset, Graphics.FONT_NUMBER_MILD, text, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         
+		// Display the unit of vario
         xOffset += dimVario[0];
         dc.setColor( Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT );
         dc.drawText (xOffset, yOffset, Graphics.FONT_XTINY, unit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
    	}
-   	
-/*   	
-   	function displayVario (dc)
-   	{
-        var yOffset = 3 * dc.getHeight() / 4;
-        var xOffset = dc.getWidth () / 2;
-        
-        var dx = dc.getWidth () / 2 / WatchData.varioMaxSize;
-        var dymax = dc.getWidth () / 8;
-        
-        var scale = 3;
-        var grayzone = 0.7;
-        
-        var delta = (WatchData.varioMaxSize / 2) * dx;
-                        
-        if (data.vario.size () != 0)
-   		{
-   			var x0 = xOffset + delta - dx;
-   		
-   			for (var i = data.vario.size () - 1; i > 0; i--)
-	        {
-	        	var val = data.vario [i];
-	        	
-	        	// Clamp
-	        	val = val < -scale ? -scale: val;
-	        	val = val >  scale ?  scale: val;
-	        	
-	        	var y0 = (val * dymax) / scale;
-	        		
-	        	if (val > 0)
-	        	{
-	        		dc.setColor(val > grayzone ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-	        		dc.fillRectangle(x0, yOffset-y0, dx, y0+1);
-	        	}
-	        	else
-	        	{
-	        		dc.setColor(val < -grayzone ? Graphics.COLOR_DK_RED : Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-	        		dc.fillRectangle(x0, yOffset, dx, -y0);
-	        	}
-    			
-	        	x0 -= dx; 
-	        }
-	        
-	        // DEBUG
-	        var last = data.vario [data.vario.size () - 1];
-	        dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
-	        dc.drawText (xOffset + delta + dx/2, yOffset - 2, Graphics.FONT_XTINY,
-	                     last.format("%.1f"), Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-   		}
-   		
-   		dc.setColor( Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT );
-        dc.drawLine(xOffset - delta, yOffset, xOffset + delta, yOffset);
-   	}
-*/   	
 }

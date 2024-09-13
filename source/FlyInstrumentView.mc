@@ -40,44 +40,39 @@ class FlyInstrumentView extends WatchUi.View
     		return;
     	}
 
-		// See note: https://developer.garmin.com/connect-iq/api-docs/Toybox/Graphics/Dc.html
-		// "You should never directly instantiate a Dc object, or attempt to render to the screen outside of an onUpdate call."
-		// It seems that on the new OS version, the Dc object is now passed as a parameter to the onUpdate method.
-		display.dc = dc; // !!!
-    
 		var vario  = data.getVario ();
 		var record = Toybox has :ActivityRecording && $.session != null && $.session.isRecording();
 	
-       	display.start (vario == null ? 0.0: vario);
+       	display.start (dc, vario == null ? 0.0: vario);
        	
 	        var heading = data.getHeading ();
 			if (heading != null)
 			{
-				display.heading (heading); 
+				display.heading (dc, heading); 
 			}
 	        
+			// Note that vario should be displayed before altitude
+			if (vario != null)
+			{
+				display.vario (dc, vario); 
+			} 
+
 			var altitude = data.getAltitude ();
 	        if (altitude == null)
 	        {
-	        	display.waitForAltitude ();
+	        	display.waitForAltitude (dc);
 	   			return;
 	        }
-	        display.altitude (altitude == null ? null: Math.round(altitude).toNumber().toString(), record);
+	        display.altitude (dc, altitude == null ? null: Math.round(altitude).toNumber().toString(), record);
 			
 			var speed = data.getSpeed ();
 			if (speed != null)
 			{
 				speed *= 3.6; // !!!
-				display.speed (speed.format("%.0f"));
-			
+				display.speed (dc, speed.format("%.0f"));
 			}
 				
-			if (vario != null)
-			{
-				display.vario (vario); 
-		} 
-		
-		display.end ();
+		display.end (dc);
 		
 		
 		// DEBUG
